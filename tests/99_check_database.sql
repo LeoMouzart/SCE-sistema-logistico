@@ -57,3 +57,38 @@ SELECT
 FROM information_schema.columns
 WHERE table_name = 'origem_material'
 ORDER BY ordinal_position;
+SELECT
+    column_name
+FROM information_schema.columns
+WHERE table_name = 'solicitacao_material'
+ORDER BY ordinal_position;
+
+
+SELECT
+    table_name,
+    column_name
+FROM information_schema.columns
+WHERE table_name IN (
+    'movimentacao_estoque',
+    'justificativa_entrega'
+)
+ORDER BY
+    table_name,
+    ordinal_position;
+
+
+SELECT
+    tablename,
+    indexname,
+    indexdef
+FROM pg_indexes
+WHERE schemaname = 'public'
+ORDER BY tablename, indexname;
+
+
+SELECT
+    trigger_name,
+    event_manipulation,
+    event_object_table
+FROM information_schema.triggers
+WHERE trigger_name = 'trg_pedido_criar_nps';
