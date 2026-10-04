@@ -1,0 +1,800 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard | MZT - Core
+{% endblock %}
+
+
+{% block content %}
+
+<section class="dashboard-header">
+
+    <div>
+        <h2>
+            Bom dia, {{ request.user.username }}!
+        </h2>
+
+        <p>
+            Aqui está o panorama geral das operações da loja.
+        </p>
+    </div>
+
+    <div class="dashboard-date">
+        <strong>
+            Hoje
+        </strong>
+
+        <span>
+            Visão operacional
+        </span>
+    </div>
+
+</section>
+
+
+<!-- ========================================
+     KPIs PRINCIPAIS
+======================================== -->
+
+<section class="kpi-grid">
+
+    <!-- PEDIDOS -->
+    <article class="kpi-card">
+
+        <div class="kpi-card-header">
+
+            <span class="kpi-icon">
+                🛒
+            </span>
+
+            <span class="kpi-title">
+                Pedidos do mês
+            </span>
+
+        </div>
+
+        <div class="kpi-value">
+            {{ pedidos_mes|default:0 }}
+        </div>
+
+        <div class="kpi-footer">
+            Mês atual
+        </div>
+
+    </article>
+
+
+    <!-- FATURAMENTO -->
+    <article class="kpi-card revenue-card">
+
+        <div class="kpi-card-header">
+
+            <span class="kpi-icon revenue">
+                $
+            </span>
+
+            <span class="kpi-title">
+                Faturamento do mês
+            </span>
+
+        </div>
+
+
+        <div class="revenue-line">
+
+            <div id="revenue-value" class="kpi-value">
+                R$ ••••••••
+            </div>
+
+
+            {% if pode_ver_faturamento %}
+
+            <button type="button" id="toggle-revenue" class="visibility-button" aria-label="Mostrar faturamento">
+                👁
+            </button>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="restricted-info">
+
+            {% if pode_ver_faturamento %}
+
+            🔒 Clique para visualizar
+
+            {% else %}
+
+            🔒 Visível apenas para Gestão
+
+            {% endif %}
+
+        </div>
+
+    </article>
+
+
+    <!-- PRODUTOS -->
+    <article class="kpi-card">
+
+        <div class="kpi-card-header">
+
+            <span class="kpi-icon">
+                📦
+            </span>
+
+            <span class="kpi-title">
+                Produtos em estoque
+            </span>
+
+        </div>
+
+        <div class="kpi-value">
+            {{ produtos_estoque|default:0 }}
+        </div>
+
+        <div class="kpi-footer">
+            Produtos com saldo disponível
+        </div>
+
+    </article>
+
+
+    <!-- CLIENTES -->
+    <article class="kpi-card">
+
+        <div class="kpi-card-header">
+
+            <span class="kpi-icon orange">
+                👥
+            </span>
+
+            <span class="kpi-title">
+                Clientes ativos
+            </span>
+
+        </div>
+
+        <div class="kpi-value">
+            {{ clientes_ativos|default:0 }}
+        </div>
+
+        <div class="kpi-footer">
+            Cadastros ativos
+        </div>
+
+    </article>
+
+</section>
+
+
+<!-- ========================================
+     DASHBOARD OPERACIONAL
+======================================== -->
+
+<section class="dashboard-grid">
+
+
+    <!-- STATUS DOS PEDIDOS -->
+
+    <article class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>
+                Status dos Pedidos
+            </h3>
+
+            <a href="#">
+                Ver todos
+            </a>
+
+        </div>
+
+
+        <div class="status-summary">
+
+            <div id="status-donut" class="donut-placeholder" data-background="{{ donut_background }}">
+
+                <strong>
+                    {{ pedidos_status_total|default:0 }}
+                </strong>
+
+                <span>
+                    pedidos no mês
+                </span>
+
+            </div>
+
+            <div class="status-list">
+
+                <div>
+                    <span class="status-dot delivered"></span>
+
+                    <span>
+                        Entregues
+                    </span>
+
+                    <strong>
+                        {{ status_entregues|default:0 }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="status-dot separation"></span>
+
+                    <span>
+                        Em entrega
+                    </span>
+
+                    <strong>
+                        {{ status_em_entrega|default:0 }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="status-dot transport"></span>
+
+                    <span>
+                        Aguardando entrega
+                    </span>
+
+                    <strong>
+                        {{ status_aguardando_entrega|default:0 }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="status-dot waiting"></span>
+
+                    <span>
+                        Aguardando material
+                    </span>
+
+                    <strong>
+                        {{ status_aguardando_material|default:0 }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="status-dot delayed"></span>
+
+                    <span>
+                        Preparação / Reserva
+                    </span>
+
+                    <strong>
+                        {{ status_preparacao|default:0 }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </article>
+
+    <!-- ESTOQUE -->
+    <article class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>
+                Estoque em Destaque
+            </h3>
+
+            <a href="#">
+                Ver estoque
+            </a>
+
+        </div>
+
+
+        <div class="stock-list">
+
+            <div class="empty-state stock-empty">
+
+                <strong>
+                    Nenhum produto em destaque
+                </strong>
+
+                <span>
+                    Os produtos aparecerão aqui conforme os dados forem registrados.
+                </span>
+
+            </div>
+
+        </div>
+
+    </article>
+
+
+    <!-- ENTREGAS -->
+
+    <article class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>
+                Entregas de Hoje
+            </h3>
+
+            <a href="#">
+                Ver todas
+            </a>
+
+        </div>
+
+
+        <div class="delivery-list">
+
+            {% for entrega in entregas_hoje %}
+
+            <div class="delivery-item">
+
+                <span class="delivery-time">
+
+                    {% if entrega.hora_entrega %}
+
+                    {{ entrega.hora_entrega|time:"H:i" }}
+
+                    {% elif entrega.hora_saida %}
+
+                    {{ entrega.hora_saida|time:"H:i" }}
+
+                    {% else %}
+
+                    --
+
+                    {% endif %}
+
+                </span>
+
+
+                <div>
+
+                    <strong>
+                        Pedido {{ entrega.pedido.numero_linx }}
+                    </strong>
+
+                    <span>
+                        {{ entrega.status }}
+                    </span>
+
+                    {% if entrega.cidade %}
+
+                    <span>
+                        {{ entrega.cidade }}
+                        {% if entrega.regiao %}
+                        - {{ entrega.regiao }}
+                        {% endif %}
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if entrega.status == "ENTREGUE" %}
+
+                <span class="badge success">
+                    Entregue
+                </span>
+
+                {% elif entrega.status == "EM_ENTREGA" %}
+
+                <span class="badge success">
+                    Em andamento
+                </span>
+
+                {% else %}
+
+                <span class="badge neutral">
+                    {{ entrega.status }}
+                </span>
+
+                {% endif %}
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-state delivery-empty">
+
+                <strong>
+                    Nenhuma entrega registrada para hoje
+                </strong>
+
+                <span>
+                    As entregas do dia aparecerão aqui automaticamente.
+                </span>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </article>
+
+    <!-- NPS -->
+
+    <article class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>
+                NPS - Satisfação de Clientes
+            </h3>
+
+            <a href="#">
+                Ver detalhes
+            </a>
+
+        </div>
+
+
+        <div class="nps-content">
+
+            <div class="nps-score">
+
+                <strong>
+                    {{ nps_score|default:0 }}
+                </strong>
+
+                <span>
+                    NPS
+                </span>
+
+            </div>
+
+
+            <div class="nps-list">
+
+                <div>
+                    <span class="status-dot delivered"></span>
+
+                    <span>
+                        Promotores
+                    </span>
+
+                    <strong>
+                        {{ pct_promotores_nps|default:0 }}%
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="status-dot separation"></span>
+
+                    <span>
+                        Neutros
+                    </span>
+
+                    <strong>
+                        {{ pct_neutros_nps|default:0 }}%
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="status-dot delayed"></span>
+
+                    <span>
+                        Detratores
+                    </span>
+
+                    <strong>
+                        {{ pct_detratores_nps|default:0 }}%
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {% if total_respostas_nps == 0 %}
+
+        <div class="nps-empty-message">
+            Nenhuma resposta NPS registrada até o momento.
+        </div>
+
+        {% else %}
+
+        <div class="nps-total">
+            {{ total_respostas_nps }}
+            resposta{{ total_respostas_nps|pluralize }}
+            registrada{{ total_respostas_nps|pluralize }}
+        </div>
+
+        {% endif %}
+
+    </article>
+
+    <!-- ALERTAS -->
+
+    <article class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>
+                Alertas e Pendências
+            </h3>
+
+            <a href="#">
+                Ver todos
+            </a>
+
+        </div>
+
+
+        <div class="alert-list">
+
+            {% if total_alertas > 0 %}
+
+
+            {% if produtos_estoque_critico > 0 %}
+
+            <div class="alert-item danger">
+
+                <strong>
+                    {{ produtos_estoque_critico }}
+                    produto{{ produtos_estoque_critico|pluralize }}
+                    com estoque crítico
+                </strong>
+
+                <span>
+                    Estoque atual igual ou abaixo do mínimo definido.
+                </span>
+
+            </div>
+
+            {% endif %}
+
+
+            {% if pedidos_atrasados > 0 %}
+
+            <div class="alert-item danger">
+
+                <strong>
+                    {{ pedidos_atrasados }}
+                    pedido{{ pedidos_atrasados|pluralize }}
+                    atrasado{{ pedidos_atrasados|pluralize }}
+                </strong>
+
+                <span>
+                    A data prevista de entrega já foi ultrapassada.
+                </span>
+
+            </div>
+
+            {% endif %}
+
+
+            {% if pedidos_aguardando_material > 0 %}
+
+            <div class="alert-item warning">
+
+                <strong>
+                    {{ pedidos_aguardando_material }}
+                    pedido{{ pedidos_aguardando_material|pluralize }}
+                    aguardando material
+                </strong>
+
+                <span>
+                    Necessitam acompanhamento de disponibilidade.
+                </span>
+
+            </div>
+
+            {% endif %}
+
+
+            {% if pedidos_reserva_incompleta > 0 %}
+
+            <div class="alert-item warning">
+
+                <strong>
+                    {{ pedidos_reserva_incompleta }}
+                    pedido{{ pedidos_reserva_incompleta|pluralize }}
+                    com reserva incompleta
+                </strong>
+
+                <span>
+                    O estoque reservado ainda não atende totalmente ao pedido.
+                </span>
+
+            </div>
+
+            {% endif %}
+
+
+            {% else %}
+
+            <div class="empty-state alert-empty">
+
+                <strong>
+                    Nenhum alerta no momento
+                </strong>
+
+                <span>
+                    Pendências importantes aparecerão aqui automaticamente.
+                </span>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </article>
+
+    <!-- ATIVIDADES -->
+
+    <article class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>
+                Atividades Recentes
+            </h3>
+
+            <a href="#">
+                Ver todas
+            </a>
+
+        </div>
+
+
+        <div class="activity-list">
+
+            {% for atividade in atividades_recentes %}
+
+            <div class="activity-item">
+
+                <div class="activity-icon">
+
+                    {% if atividade.tipo == "entrega" %}
+
+                    🚚
+
+                    {% elif atividade.tipo == "agendamento" %}
+
+                    📅
+
+                    {% else %}
+
+                    •
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="activity-content">
+
+                    <strong>
+                        {{ atividade.titulo }}
+                    </strong>
+
+                    <span>
+                        {{ atividade.descricao }}
+                    </span>
+
+                </div>
+
+
+                <div class="activity-date">
+
+                    <strong>
+                        {{ atividade.data|date:"d/m" }}
+                    </strong>
+
+                    <span>
+                        {{ atividade.data|time:"H:i" }}
+                    </span>
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-state activity-empty">
+
+                <strong>
+                    Nenhuma atividade recente
+                </strong>
+
+                <span>
+                    As movimentações mais recentes do sistema aparecerão aqui.
+                </span>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </article>
+</section>
+
+
+<!-- ========================================
+     FATURAMENTO
+======================================== -->
+
+
+
+
+<script>
+
+    /* =========================
+       GRÁFICO DE PEDIDOS
+    ========================= */
+
+    const statusDonut =
+        document.getElementById("status-donut");
+
+    if (statusDonut) {
+
+        const donutBackground =
+            statusDonut.dataset.background;
+
+        if (donutBackground) {
+            statusDonut.style.background =
+                donutBackground;
+        }
+
+    }
+
+
+    /* =========================
+       FATURAMENTO
+    ========================= */
+
+    const revenueButton =
+        document.getElementById("toggle-revenue");
+
+    const revenueValue =
+        document.getElementById("revenue-value");
+
+    let revenueVisible = false;
+
+    revenueButton?.addEventListener(
+        "click",
+        function () {
+
+            revenueVisible =
+                !revenueVisible;
+
+            if (revenueVisible) {
+
+                revenueValue.textContent =
+                    "Indisponível";
+
+                revenueButton.textContent =
+                    "🙈";
+
+            } else {
+
+                revenueValue.textContent =
+                    "R$ ••••••••";
+
+                revenueButton.textContent =
+                    "👁";
+
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

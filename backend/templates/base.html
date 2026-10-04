@@ -1,0 +1,305 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        MZT - Core
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+
+                <div class="brand-logo">
+                    <span class="brand-name">
+                        Verderosi
+                    </span>
+
+                    <span class="brand-subtitle">
+                        ACABAMENTOS
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- NAVEGAÇÃO PRINCIPAL -->
+            <nav class="sidebar-nav">
+
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">
+                        ⌂
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        🛒
+                    </span>
+
+                    <span>
+                        Pedidos
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        👥
+                    </span>
+
+                    <span>
+                        Clientes
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        📦
+                    </span>
+
+                    <span>
+                        Produtos
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Estoque
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        🚚
+                    </span>
+
+                    <span>
+                        Entregas
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        🏭
+                    </span>
+
+                    <span>
+                        Compras
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        📥
+                    </span>
+
+                    <span>
+                        Recebimento
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        ★
+                    </span>
+
+                    <span>
+                        NPS
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        📊
+                    </span>
+
+                    <span>
+                        Relatórios
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        ⚙
+                    </span>
+
+                    <span>
+                        Cadastros
+                    </span>
+                </a>
+
+            </nav>
+
+
+            <!-- ÁREA INFERIOR -->
+            <div class="sidebar-bottom">
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        ⚙
+                    </span>
+
+                    <span>
+                        Configurações
+                    </span>
+                </a>
+
+
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">
+                        ?
+                    </span>
+
+                    <span>
+                        Ajuda
+                    </span>
+                </a>
+
+            </div>
+
+
+            <!-- FACHADA / MARCA D'ÁGUA -->
+            <div class="sidebar-watermark">
+
+                <img src="{% static 'img/fachada_verderosi.jpg' %}" alt="Verderosi Acabamentos">
+
+                <div class="watermark-overlay"></div>
+
+                <div class="watermark-content">
+
+                    <span>
+                        Verderosi
+                    </span>
+
+                    <small>
+                        ACABAMENTOS
+                    </small>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- CONTEÚDO -->
+        <div class="main-area">
+
+            <!-- HEADER -->
+            <header class="topbar">
+
+                <button type="button" class="mobile-menu-button" id="mobile-menu-button" aria-label="Abrir menu">
+                    ☰
+                </button>
+
+                <div class="system-identity">
+
+                    <h1>
+                        MZT - Core
+                    </h1>
+
+                    <span>
+                        Sistema Integrado de Operações
+                    </span>
+
+                </div>
+
+
+                <div class="topbar-search">
+
+                    <span class="search-icon">
+                        ⌕
+                    </span>
+
+                    <input type="text" placeholder="Buscar pedidos, clientes, produtos...">
+
+                </div>
+
+
+                <div class="topbar-actions">
+
+                    <button type="button" class="notification-button" aria-label="Notificações">
+                        🔔
+                    </button>
+
+
+                    <div class="user-profile">
+
+                        <div class="user-avatar">
+                            {{ request.user.username|slice:":1"|upper }}
+                        </div>
+
+
+                        <div class="user-info">
+
+                            <strong>
+                                {{ request.user.username }}
+                            </strong>
+
+                            <span>
+                                {% if request.user.is_superuser %}
+                                Administrador
+                                {% else %}
+                                Usuário
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTEÚDO DE CADA PÁGINA -->
+            <main class="page-content">
+
+                {% block content %}
+
+                {% endblock %}
+
+            </main>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
