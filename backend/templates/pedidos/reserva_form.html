@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}
+Nova Reserva | MZT - Core
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <a href="{% url 'pedidos:detalhe' pedido.id_pedido %}" class="back-link">
+            ← Voltar para o pedido
+        </a>
+
+        <h2>
+            Nova reserva
+        </h2>
+
+        <p>
+            Reserve material para o pedido
+            {% if pedido.numero_linx %}
+            {{ pedido.numero_linx }}
+            {% else %}
+            #{{ pedido.id_pedido }}
+            {% endif %}
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="detail-card detail-full">
+
+    <form method="post" class="reservation-form">
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+        <div class="form-errors">
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+        {% endif %}
+
+
+        <div class="form-grid">
+
+            {% for field in form %}
+
+            <div class="form-field">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.help_text %}
+
+                <small>
+                    {{ field.help_text }}
+                </small>
+
+                {% endif %}
+
+
+                {% for error in field.errors %}
+
+                <span class="field-error">
+                    {{ error }}
+                </span>
+
+                {% endfor %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-info">
+
+            A reserva pode permanecer ativa por no máximo
+            <strong>7 dias</strong>.
+
+            Após o vencimento, o material volta a compor
+            o estoque disponível.
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <a href="{% url 'pedidos:detalhe' pedido.id_pedido %}" class="button-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit" class="button-primary">
+                Confirmar reserva
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+{% endblock %}

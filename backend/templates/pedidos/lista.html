@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block title %}
+Pedidos | MZT - Core
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header pedidos-header">
+
+    <div>
+        <h2>Pedidos</h2>
+
+        <p>
+            Acompanhe os pedidos de venda e seus status operacionais.
+        </p>
+    </div>
+
+    <div>
+        <a href="{% url 'pedidos:criar' %}" class="button-primary">
+            + Novo pedido
+        </a>
+    </div>
+
+</section>
+
+
+<section class="page-card">
+
+    <!-- ========================================
+         FILTROS
+    ======================================== -->
+
+    <form method="get" class="filters-form" id="pedidos-filtros" data-status="{{ status_selecionado }}"
+        data-cliente="{{ cliente_selecionado }}" data-vendedor="{{ vendedor_selecionado }}">
+
+        <div class="filter-group filter-search">
+
+            <label for="busca">
+                Pedido
+            </label>
+
+            <input type="text" id="busca" name="busca" value="{{ busca }}" placeholder="Número do pedido">
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="status">
+                Status
+            </label>
+
+            <select id="status" name="status">
+
+                <option value="">
+                    Todos
+                </option>
+
+                {% for opcao in status_opcoes %}
+
+                <option value="{{ opcao.valor }}">
+                    {{ opcao.nome }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="cliente">
+                Cliente
+            </label>
+
+            <select id="cliente" name="cliente">
+
+                <option value="">
+                    Todos
+                </option>
+
+                {% for cliente in clientes %}
+
+                <option value="{{ cliente.pk }}">
+                    {{ cliente }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="vendedor">
+                Vendedor
+            </label>
+
+            <select id="vendedor" name="vendedor">
+
+                <option value="">
+                    Todos
+                </option>
+
+                {% for vendedor in vendedores %}
+
+                <option value="{{ vendedor.pk }}">
+                    {{ vendedor }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="data_inicio">
+                De
+            </label>
+
+            <input type="date" id="data_inicio" name="data_inicio" value="{{ data_inicio }}">
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="data_fim">
+                Até
+            </label>
+
+            <input type="date" id="data_fim" name="data_fim" value="{{ data_fim }}">
+
+        </div>
+
+
+        <div class="filter-actions">
+
+            <button type="submit" class="button-primary">
+                Filtrar
+            </button>
+
+            <a href="{% url 'pedidos:lista' %}" class="button-secondary">
+                Limpar
+            </a>
+
+        </div>
+
+    </form>
+
+
+    <!-- ========================================
+         CABEÇALHO DA TABELA
+    ======================================== -->
+
+    <div class="card-header">
+
+        <h3>
+            Pedidos cadastrados
+        </h3>
+
+        <span class="records-count">
+
+            {{ pagina.paginator.count }}
+
+            pedido{{ pagina.paginator.count|pluralize }}
+
+        </span>
+
+    </div>
+
+
+    <!-- ========================================
+         TABELA
+    ======================================== -->
+
+    <div class="table-responsive">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Venda</th>
+                    <th>Entrega prevista</th>
+                    <th>Status</th>
+                    <th>NF</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for pedido in pagina %}
+
+                <tr>
+
+                    <td>
+
+                        <a href="{% url 'pedidos:detalhe' pedido.id_pedido %}" class="pedido-link">
+
+                            {% if pedido.numero_linx %}
+                            {{ pedido.numero_linx }}
+                            {% else %}
+                            #{{ pedido.id_pedido }}
+                            {% endif %}
+
+                        </a>
+
+                    </td>
+
+
+                    <td>
+                        {{ pedido.cliente }}
+                    </td>
+
+
+                    <td>
+
+                        {% if pedido.vendedor %}
+                        {{ pedido.vendedor }}
+                        {% else %}
+                        -
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if pedido.data_venda %}
+                        {{ pedido.data_venda|date:"d/m/Y" }}
+                        {% else %}
+                        -
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if pedido.data_entrega_prevista %}
+                        {{ pedido.data_entrega_prevista|date:"d/m/Y" }}
+                        {% else %}
+                        -
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="status-badge">
+                            {{ pedido.status_atual }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if pedido.nf_emitida %}
+
+                        {% if pedido.numero_nf %}
+                        {{ pedido.numero_nf }}
+                        {% else %}
+                        Emitida
+                        {% endif %}
+
+                        {% else %}
+
+                        Não emitida
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="7">
+
+                        <div class="empty-state">
+
+                            <strong>
+                                Nenhum pedido encontrado
+                            </strong>
+
+                            <span>
+                                Tente alterar os filtros utilizados.
+                            </span>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ========================================
+         PAGINAÇÃO
+    ======================================== -->
+
+    {% if pagina.paginator.num_pages > 1 %}
+
+    <div class="pagination">
+
+        {% if pagina.has_previous %}
+
+        <a
+            href="?page={{ pagina.previous_page_number }}&busca={{ busca }}&status={{ status_selecionado }}&cliente={{ cliente_selecionado }}&vendedor={{ vendedor_selecionado }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}">
+            ← Anterior
+        </a>
+
+        {% endif %}
+
+
+        <span>
+            Página {{ pagina.number }}
+            de {{ pagina.paginator.num_pages }}
+        </span>
+
+
+        {% if pagina.has_next %}
+
+        <a
+            href="?page={{ pagina.next_page_number }}&busca={{ busca }}&status={{ status_selecionado }}&cliente={{ cliente_selecionado }}&vendedor={{ vendedor_selecionado }}&data_inicio={{ data_inicio }}&data_fim={{ data_fim }}">
+            Próxima →
+        </a>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+<!-- ========================================
+     MANTER FILTROS SELECIONADOS
+======================================== -->
+
+<script>
+
+    const filtrosForm =
+        document.getElementById("pedidos-filtros");
+
+    if (filtrosForm) {
+
+        const statusSelecionado =
+            filtrosForm.dataset.status;
+
+        const clienteSelecionado =
+            filtrosForm.dataset.cliente;
+
+        const vendedorSelecionado =
+            filtrosForm.dataset.vendedor;
+
+
+        const statusSelect =
+            document.getElementById("status");
+
+        const clienteSelect =
+            document.getElementById("cliente");
+
+        const vendedorSelect =
+            document.getElementById("vendedor");
+
+
+        if (statusSelect && statusSelecionado) {
+            statusSelect.value = statusSelecionado;
+        }
+
+        if (clienteSelect && clienteSelecionado) {
+            clienteSelect.value = clienteSelecionado;
+        }
+
+        if (vendedorSelect && vendedorSelecionado) {
+            vendedorSelect.value = vendedorSelecionado;
+        }
+
+    }
+
+</script>
+
+{% endblock %}

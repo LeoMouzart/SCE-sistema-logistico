@@ -213,6 +213,19 @@ class ReservaEstoque(models.Model):
         null=True,
     )
 
+    vendedor_solicitante = models.ForeignKey(
+        "core.Vendedor",
+        models.DO_NOTHING,
+        db_column="id_vendedor_solicitante",
+        blank=True,
+        null=True,
+    )
+
+    expira_em = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         managed = False
         db_table = "reserva_estoque"

@@ -1,0 +1,802 @@
+{% extends "base.html" %}
+
+{% block title %}
+Pedido | MZT - Core
+{% endblock %}
+
+{% block content %}
+
+<!-- ========================================
+     CABEÇALHO
+======================================== -->
+
+<section class="page-header">
+
+    <div>
+
+        <a href="{% url 'pedidos:lista' %}" class="back-link">
+            ← Voltar para pedidos
+        </a>
+
+        <h2>
+            Pedido
+
+            {% if pedido.numero_linx %}
+            {{ pedido.numero_linx }}
+            {% else %}
+            #{{ pedido.id_pedido }}
+            {% endif %}
+        </h2>
+
+        <p>
+            Detalhes e acompanhamento operacional do pedido.
+        </p>
+
+    </div>
+
+    <div>
+
+        <span class="status-badge">
+            {{ pedido.status_atual }}
+        </span>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================
+     DADOS PRINCIPAIS
+======================================== -->
+
+<section class="detail-grid">
+
+    <!-- INFORMAÇÕES -->
+
+    <article class="detail-card">
+
+        <div class="card-header">
+            <h3>Informações do pedido</h3>
+        </div>
+
+        <div class="detail-list">
+
+            <div class="detail-field">
+                <span>Número Linx</span>
+
+                <strong>
+                    {% if pedido.numero_linx %}
+                    {{ pedido.numero_linx }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+
+            <div class="detail-field">
+                <span>Cliente</span>
+
+                <strong>
+                    {{ pedido.cliente }}
+                </strong>
+            </div>
+
+
+            <div class="detail-field">
+                <span>Vendedor</span>
+
+                <strong>
+                    {% if pedido.vendedor %}
+                    {{ pedido.vendedor }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+
+            <div class="detail-field">
+                <span>Data da venda</span>
+
+                <strong>
+                    {% if pedido.data_venda %}
+                    {{ pedido.data_venda|date:"d/m/Y" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </article>
+
+
+    <!-- PRAZOS -->
+
+    <article class="detail-card">
+
+        <div class="card-header">
+            <h3>Prazos</h3>
+        </div>
+
+        <div class="detail-list">
+
+            <div class="detail-field">
+                <span>Entrega original</span>
+
+                <strong>
+                    {% if pedido.data_entrega_original %}
+                    {{ pedido.data_entrega_original|date:"d/m/Y" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+
+            <div class="detail-field">
+                <span>Entrega prevista</span>
+
+                <strong>
+                    {% if pedido.data_entrega_prevista %}
+                    {{ pedido.data_entrega_prevista|date:"d/m/Y" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </article>
+
+
+    <!-- NOTA FISCAL -->
+
+    <article class="detail-card">
+
+        <div class="card-header">
+            <h3>Nota Fiscal</h3>
+        </div>
+
+        <div class="detail-list">
+
+            <div class="detail-field">
+                <span>NF emitida</span>
+
+                <strong>
+                    {% if pedido.nf_emitida %}
+                    Sim
+                    {% else %}
+                    Não
+                    {% endif %}
+                </strong>
+            </div>
+
+
+            <div class="detail-field">
+                <span>Número da NF</span>
+
+                <strong>
+                    {% if pedido.numero_nf %}
+                    {{ pedido.numero_nf }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+
+            <div class="detail-field">
+                <span>Data de emissão</span>
+
+                <strong>
+                    {% if pedido.data_emissao_nf %}
+                    {{ pedido.data_emissao_nf|date:"d/m/Y" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </article>
+
+
+    <!-- CONTROLE -->
+
+    <article class="detail-card">
+
+        <div class="card-header">
+            <h3>Controle</h3>
+        </div>
+
+        <div class="detail-list">
+
+            <div class="detail-field">
+                <span>Status atual</span>
+
+                <strong>
+                    {{ pedido.status_atual }}
+                </strong>
+            </div>
+
+            <div class="detail-field">
+                <span>Criado em</span>
+
+                <strong>
+                    {% if pedido.created_at %}
+                    {{ pedido.created_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="detail-field">
+                <span>Última atualização</span>
+
+                <strong>
+                    {% if pedido.updated_at %}
+                    {{ pedido.updated_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <form method="post" action="{% url 'pedidos:alterar_status' pedido.id_pedido %}" class="status-update-form">
+
+            {% csrf_token %}
+
+            <div class="form-field">
+
+                <label for="novo_status">
+                    Alterar status
+                </label>
+
+                <select id="novo_status" name="novo_status" required>
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    <option value="CADASTRADO">
+                        Cadastrado
+                    </option>
+
+                    <option value="AGUARDANDO_MATERIAL">
+                        Aguardando material
+                    </option>
+
+                    <option value="COMPLETO">
+                        Completo
+                    </option>
+
+                    <option value="RESERVADO_COMPLETO">
+                        Reserva completa
+                    </option>
+
+                    <option value="RESERVADO_INCOMPLETO">
+                        Reserva incompleta
+                    </option>
+
+                    <option value="AGUARDANDO_ENTREGA">
+                        Aguardando entrega
+                    </option>
+
+                    <option value="EM_ENTREGA">
+                        Em entrega
+                    </option>
+
+                    <option value="ENTREGUE_PARCIAL">
+                        Entregue parcial
+                    </option>
+
+                    <option value="ENTREGUE">
+                        Entregue
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="form-field">
+
+                <label for="observacao">
+                    Observação
+                </label>
+
+                <textarea id="observacao" name="observacao" rows="2"
+                    placeholder="Motivo ou observação da alteração"></textarea>
+
+            </div>
+
+            <button type="submit" class="button-primary">
+                Atualizar status
+            </button>
+
+        </form>
+
+    </article>
+
+</section>
+
+
+<!-- ========================================
+     OBSERVAÇÕES
+======================================== -->
+
+<section class="detail-card detail-full">
+
+    <div class="card-header">
+        <h3>Observações</h3>
+    </div>
+
+    {% if pedido.observacao %}
+
+    <p class="pedido-observacao">
+        {{ pedido.observacao }}
+    </p>
+
+    {% else %}
+
+    <div class="empty-detail">
+        Nenhuma observação registrada.
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+<!-- ========================================
+     ITENS DO PEDIDO
+======================================== -->
+
+<section class="detail-card detail-full">
+
+    <div class="card-header">
+        <h3>Itens do pedido</h3>
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Produto</th>
+                    <th>Solicitado</th>
+                    <th>Reservado</th>
+                    <th>Separado</th>
+                    <th>Entregue</th>
+                    <th>Situação</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in itens %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ item.produto }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ item.quantidade_solicitada|floatformat:"-2" }}
+                    </td>
+
+                    <td>
+                        {{ item.quantidade_reservada|floatformat:"-2" }}
+                    </td>
+
+                    <td>
+                        {{ item.quantidade_separada|floatformat:"-2" }}
+                    </td>
+
+                    <td>
+                        {{ item.quantidade_entregue|floatformat:"-2" }}
+                    </td>
+
+                    <td>
+
+                        {% if item.quantidade_entregue >= item.quantidade_solicitada %}
+
+                        <span class="badge success">
+                            Entregue
+                        </span>
+
+                        {% elif item.quantidade_separada >= item.quantidade_solicitada %}
+
+                        <span class="badge success">
+                            Separado
+                        </span>
+
+                        {% elif item.quantidade_reservada >= item.quantidade_solicitada %}
+
+                        <span class="badge success">
+                            Reservado
+                        </span>
+
+                        {% elif item.quantidade_reservada > 0 %}
+
+                        <span class="badge warning">
+                            Reserva parcial
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge neutral">
+                            Pendente
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="6">
+
+                        <div class="empty-state">
+
+                            <strong>
+                                Nenhum item cadastrado
+                            </strong>
+
+                            <span>
+                                Os produtos vinculados ao pedido aparecerão aqui.
+                            </span>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================
+     RESERVAS DE ESTOQUE
+======================================== -->
+
+<section class="detail-card detail-full">
+
+    <div class="card-header">
+
+        <h3>
+            Reservas de estoque
+        </h3>
+
+        <a href="{% url 'pedidos:criar_reserva' pedido.id_pedido %}" class="button-primary">
+            + Nova reserva
+        </a>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Produto</th>
+                    <th>Lote</th>
+                    <th>Local</th>
+                    <th>Classificação</th>
+                    <th>Quantidade</th>
+                    <th>Vendedor</th>
+                    <th>Status</th>
+                    <th>Validade</th>
+                    <th>Ações</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for reserva in reservas %}
+
+                <tr>
+
+                    <!-- PRODUTO -->
+
+                    <td>
+                        <strong>
+                            {{ reserva.produto }}
+                        </strong>
+                    </td>
+
+
+                    <!-- LOTE -->
+
+                    <td>
+
+                        {% if reserva.lote %}
+                        {{ reserva.lote }}
+                        {% else %}
+                        -
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- LOCAL -->
+
+                    <td>
+                        {{ reserva.local }}
+                    </td>
+
+
+                    <!-- CLASSIFICAÇÃO -->
+
+                    <td>
+                        {{ reserva.classificacao }}
+                    </td>
+
+
+                    <!-- QUANTIDADE -->
+
+                    <td>
+                        {{ reserva.quantidade_reservada|floatformat:"-2" }}
+                    </td>
+
+
+                    <!-- VENDEDOR SOLICITANTE -->
+
+                    <td>
+
+                        {% if reserva.vendedor_solicitante %}
+                        {{ reserva.vendedor_solicitante }}
+                        {% else %}
+                        -
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        <span class="status-badge">
+                            {{ reserva.status }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- VALIDADE -->
+
+                    <td>
+
+                        {% if reserva.expira_em %}
+
+                        {{ reserva.expira_em|date:"d/m/Y H:i" }}
+
+                        {% else %}
+
+                        -
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- AÇÕES -->
+
+                    <td>
+
+                        {% if reserva.status == "ATIVA" %}
+
+                        <div class="reservation-actions">
+
+                            <!-- LIBERAR -->
+
+                            <form method="post"
+                                action="{% url 'pedidos:alterar_status_reserva' pedido.id_pedido reserva.id_reserva 'liberar' %}">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="button-small">
+                                    Liberar
+                                </button>
+
+                            </form>
+
+
+                            <!-- CANCELAR -->
+
+                            <form method="post"
+                                action="{% url 'pedidos:alterar_status_reserva' pedido.id_pedido reserva.id_reserva 'cancelar' %}">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="button-small danger">
+                                    Cancelar
+                                </button>
+
+                            </form>
+
+
+                            <!-- CONSUMIR -->
+
+                            <form method="post"
+                                action="{% url 'pedidos:alterar_status_reserva' pedido.id_pedido reserva.id_reserva 'consumir' %}">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="button-small success">
+                                    Consumir
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        {% else %}
+
+                        -
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="9">
+
+                        <div class="empty-detail">
+                            Nenhuma reserva registrada para este pedido.
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================
+     HISTÓRICO OPERACIONAL
+======================================== -->
+
+<section class="detail-card detail-full">
+
+    <div class="card-header">
+        <h3>Histórico operacional</h3>
+    </div>
+
+
+    <div class="timeline">
+
+        {% for registro in historico %}
+
+        <div class="timeline-item">
+
+            <div class="timeline-marker"></div>
+
+
+            <div class="timeline-content">
+
+                <div class="timeline-header">
+
+                    <strong>
+                        {{ registro.status_novo }}
+                    </strong>
+
+                    <span>
+                        {{ registro.data_hora|date:"d/m/Y H:i" }}
+                    </span>
+
+                </div>
+
+
+                {% if registro.status_anterior %}
+
+                <div class="timeline-status">
+
+                    <span>
+                        De:
+
+                        <strong>
+                            {{ registro.status_anterior }}
+                        </strong>
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+
+                    <span>
+                        Para:
+
+                        <strong>
+                            {{ registro.status_novo }}
+                        </strong>
+                    </span>
+
+                </div>
+
+                {% endif %}
+
+
+                {% if registro.usuario %}
+
+                <div class="timeline-meta">
+
+                    Responsável:
+                    {{ registro.usuario }}
+
+                </div>
+
+                {% endif %}
+
+
+                {% if registro.observacao %}
+
+                <div class="timeline-note">
+                    {{ registro.observacao }}
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="empty-detail">
+            Nenhum histórico registrado para este pedido.
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}
